@@ -30,3 +30,7 @@ uploads/
 references/
 third_party/
 data/
+
+# Large sample datasets and local secrets (never commit)
+sample_data/
+muzi.txt
