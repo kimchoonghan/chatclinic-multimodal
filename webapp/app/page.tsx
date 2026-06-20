@@ -2452,6 +2452,37 @@ export default function Page() {
       return;
     }
 
+    // Generic registered-tool fallback for text sources (e.g. summary tools)
+    if (preAnalysisSource?.source_type === "text" && preAnalysisSource.source_path) {
+      const response = await fetch(`${apiBase.replace(/\/$/, "")}/api/v1/tools/${alias}/run`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payload: {
+            ...options,
+            text_path: preAnalysisSource.source_path,
+            file_name: preAnalysisSource.file_name,
+          },
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const toolResult = (await response.json()) as ToolRunResponse;
+      const resultData = (toolResult.result ?? {}) as Record<string, unknown>;
+      // Pull a human-readable summary from whichever result slot the tool returned.
+      const slot = Object.values(resultData).find(
+        (v) => v && typeof v === "object" && typeof (v as { summary?: unknown }).summary === "string",
+      ) as { summary?: string } | undefined;
+      const summary =
+        slot?.summary ??
+        (typeof resultData.summary === "string" ? (resultData.summary as string) : null) ??
+        `\`@${alias}\` completed successfully.`;
+      setStatus(toolReadyStatus(alias, remainder));
+      addMessage({ role: "assistant", content: summary });
+      return;
+    }
+
     // No frontend handler matched — if an analysis is loaded, let the backend chat handler try
     if (analysis) {
       await handleAskAnalysisQuestion(`@${alias}${remainder ? " " + remainder : ""}`, analysis);
