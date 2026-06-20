@@ -676,6 +676,7 @@ function isTextFileName(fileName: string) {
   return (
     lowered.endsWith(".md") ||
     lowered.endsWith(".markdown") ||
+    lowered.endsWith(".txt") ||
     lowered.endsWith(".text") ||
     lowered.endsWith(".note") ||
     lowered.endsWith(".log")
