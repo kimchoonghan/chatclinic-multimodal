@@ -1,0 +1,46 @@
+{
+  "name": "patient_soap_summary_tool",
+  "entrypoint": "plugins.patient_soap_summary_tool.logic:execute",
+  "description": "Summarize a patient's longitudinal clinical notes into one concise SOAP note (Subjective, Objective, Assessment, Plan) using a local Ollama Qwen model.",
+  "task": "patient-soap-summary",
+  "modality": "text",
+  "approval_required": false,
+  "source": "plugin",
+  "source_types": ["text"],
+  "routing": {
+    "trigger_keywords": [
+      "soap", "summary", "summarize", "patient summary", "clinical summary",
+      "요약", "환자요약", "환자 정보", "소견 요약", "임상 요약"
+    ],
+    "execution_intents": ["summarize", "summary", "soap", "요약", "정리", "실행", "돌려"],
+    "requires_source_vcf": false,
+    "question_argument": "none",
+    "result_slot": "patient_soap_summary",
+    "execution_mode": "direct_endpoint"
+  },
+  "runtime": {
+    "host_compatible": ["cpu", "gpu"],
+    "requires_gpu": false,
+    "allow_cpu_fallback": true,
+    "estimated_runtime_sec": 20,
+    "notes": "Runs locally against an Ollama server (default http://127.0.0.1:11434) using a Qwen model. GPU is used automatically if available."
+  },
+  "direct_chat": {
+    "source_type": "text",
+    "endpoint": "patient_soap_summary",
+    "argument_mode": "none",
+    "requested_view": "text",
+    "studio": {
+      "renderer": "patient_soap_summary"
+    },
+    "result_kind": "patient_soap_summary"
+  },
+  "help": {
+    "summary": "Condense a patient's full longitudinal clinical notes into a single concise SOAP note via a local Ollama Qwen model.",
+    "examples": ["@patient_soap_summary", "@patient_soap_summary 환자 요약"],
+    "notes": [
+      "Requires a running Ollama server with a Qwen model pulled (set OLLAMA_MODEL / OLLAMA_HOST to override).",
+      "Upload a .txt clinical note first, then run this tool."
+    ]
+  }
+}

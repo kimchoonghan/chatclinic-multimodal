@@ -1,0 +1,47 @@
+{
+  "name": "visit_summary_tool",
+  "entrypoint": "plugins.visit_summary_tool.logic:execute",
+  "description": "Split a patient's longitudinal clinical notes into individual visits (by date) and summarize each visit separately using a local Ollama Qwen model.",
+  "task": "visit-summary",
+  "modality": "text",
+  "approval_required": false,
+  "source": "plugin",
+  "source_types": ["text"],
+  "routing": {
+    "trigger_keywords": [
+      "visit", "per visit", "per-visit", "encounter", "visit summary", "timeline",
+      "방문", "내원", "visit별", "방문별", "내원별", "경과"
+    ],
+    "execution_intents": ["summarize", "summary", "visit", "방문별", "정리", "실행", "돌려"],
+    "requires_source_vcf": false,
+    "question_argument": "none",
+    "result_slot": "visit_summary",
+    "execution_mode": "direct_endpoint"
+  },
+  "runtime": {
+    "host_compatible": ["cpu", "gpu"],
+    "requires_gpu": false,
+    "allow_cpu_fallback": true,
+    "estimated_runtime_sec": 40,
+    "notes": "Runs locally against an Ollama server (default http://127.0.0.1:11434) using a Qwen model. One inference call per visit; GPU is used automatically if available."
+  },
+  "direct_chat": {
+    "source_type": "text",
+    "endpoint": "visit_summary",
+    "argument_mode": "none",
+    "requested_view": "text",
+    "studio": {
+      "renderer": "visit_summary"
+    },
+    "result_kind": "visit_summary"
+  },
+  "help": {
+    "summary": "Summarize a patient's clinical notes visit-by-visit (Visit 1, Visit 2, ...) via a local Ollama Qwen model.",
+    "examples": ["@visit_summary", "@visit_summary 방문별 요약"],
+    "notes": [
+      "Requires a running Ollama server with a Qwen model pulled (set OLLAMA_MODEL / OLLAMA_HOST to override).",
+      "Visits are detected from dated note chunks; same-date chunks are merged into one visit.",
+      "Upload a .txt clinical note first, then run this tool."
+    ]
+  }
+}
